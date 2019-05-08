@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 from chaoslib.exceptions import FailedActivity
 from chaosaws.asg.actions import (
     suspend_processes, resume_processes, terminate_random_instances,
-    detach_random_instances)
+    detach_random_instances, detach_random_volume)
 
 import pytest
 
@@ -706,3 +706,95 @@ def test_detach_instances_tags(aws_client):
         except AssertionError as e:
             ex = e.args
     raise AssertionError(ex)
+
+
+@patch('chaosaws.asg.actions.aws_client', autospec=True)
+def test_detach_random_volume_asg_name(aws_client):
+    client = MagicMock()
+    aws_client.return_value = client
+    asg_names = ['AutoScalingGroup-A']
+    client.describe_auto_scaling_groups.return_value = {
+        "AutoScalingGroups": [{
+            "AutoScalingGroupName": "AutoScalingGroup-A",
+            "Instances": [
+                {"InstanceId": "i-00000000000000001"}]}]}
+    client.describe_instances.return_value = {
+        'Reservations': [{
+            'Instances': [{
+                'InstanceId': 'i-00000000000000001',
+                'BlockDeviceMappings': [
+                    {
+                        'DeviceName': '/dev/xvda',
+                        'Ebs': {'VolumeId': 'vol-00000001'}
+                    },
+                    {
+                        'DeviceName': '/dev/sdb',
+                        'Ebs': {'VolumeId': 'vol-00000002'}
+                    }]}]}]}
+    client.detach_volume.return_value = {
+        'Device': '/dev/sdb',
+        'InstanceId': 'i-00000000000000001',
+        'State': 'detaching',
+        'VolumeId': 'vol-00000002'}
+
+    detach_random_volume(asg_names=asg_names)
+
+    client.describe_auto_scaling_groups.assert_called_with(
+        AutoScalingGroupNames=asg_names)
+    client.describe_instances.assert_called_with(
+        InstanceIds=['i-00000000000000001'])
+    client.detach_volume.assert_called_with(
+        Device='/dev/sdb',
+        Force=True,
+        InstanceId='i-00000000000000001',
+        VolumeId='vol-00000002')
+
+
+@patch('chaosaws.asg.actions.aws_client', autospec=True)
+def test_detach_random_volume_asg_tags(aws_client):
+    client = MagicMock()
+    aws_client.return_value = client
+    asg_names = ['AutoScalingGroup-A']
+    tags = [{'Key': 'TargetKey', 'Value': 'TargetValue'}]
+    client.get_paginator.return_value.paginate.return_value = [{
+        'Tags': [{
+            'ResourceId': 'AutoScalingGroup-A',
+            'ResourceType': 'auto-scaling-group',
+            'Key': 'TargetKey',
+            'Value': 'TargetValue',
+            'PropagateAtLaunch': False}]}]
+    client.describe_auto_scaling_groups.return_value = {
+        "AutoScalingGroups": [{
+            "AutoScalingGroupName": "AutoScalingGroup-A",
+            "Instances": [
+                {"InstanceId": "i-00000000000000001"}]}]}
+    client.describe_instances.return_value = {
+        'Reservations': [{
+            'Instances': [{
+                'InstanceId': 'i-00000000000000001',
+                'BlockDeviceMappings': [
+                    {
+                        'DeviceName': '/dev/xvda',
+                        'Ebs': {'VolumeId': 'vol-00000001'}
+                    },
+                    {
+                        'DeviceName': '/dev/sdb',
+                        'Ebs': {'VolumeId': 'vol-00000002'}
+                    }]}]}]}
+    client.detach_volume.return_value = {
+        'Device': '/dev/sdb',
+        'InstanceId': 'i-00000000000000001',
+        'State': 'detaching',
+        'VolumeId': 'vol-00000002'}
+
+    detach_random_volume(tags=tags)
+
+    client.describe_auto_scaling_groups.assert_called_with(
+        AutoScalingGroupNames=asg_names)
+    client.describe_instances.assert_called_with(
+        InstanceIds=['i-00000000000000001'])
+    client.detach_volume.assert_called_with(
+        Device='/dev/sdb',
+        Force=True,
+        InstanceId='i-00000000000000001',
+        VolumeId='vol-00000002')
