@@ -1,0 +1,46 @@
+{
+  "Table": {
+    "AttributeDefinitions": [
+      {
+        "AttributeName": "ItemId",
+        "AttributeType": "S"
+      },
+      {
+        "AttributeName": "ItemCreatedAt",
+        "AttributeType": "S"
+      }
+    ],
+    "TableName": "MyTestDynamoTable",
+    "KeySchema": [
+      {
+        "AttributeName": "ItemId",
+        "KeyType": "HASH"
+      },
+      {
+        "AttributeName": "ItemCreatedAt",
+        "KeyType": "RANGE"
+      }
+    ],
+    "TableStatus": "ACTIVE",
+    "CreationDateTime": "2020-09-10T11:59:16.595220-04:00",
+    "ProvisionedThroughput": {
+      "NumberOfDecreasesToday": 0,
+      "ReadCapacityUnits": 10,
+      "WriteCapacityUnits": 10
+    },
+    "TableSizeBytes": 0,
+    "ItemCount": 0,
+    "TableArn": "arn:aws:dynamodb:us-east-1:123456789011:table/MyTestDynamoTable",
+    "LocalSecondaryIndexes": [],
+    "GlobalSecondaryIndexes": []
+  },
+  "ResponseMetadata": {
+    "RequestId": "WOUU5VHN95QLGNOUAPJ8894Q7C4FB2J22VEG48A16F5VHEMNNWHT",
+    "HTTPStatusCode": 200,
+    "HTTPHeaders": {
+      "server": "amazon.com",
+      "x-amzn-requestid": "WOUU5VHN95QLGNOUAPJ8894Q7C4FB2J22VEG48A16F5VHEMNNWHT"
+    },
+    "RetryAttempts": 0
+  }
+}

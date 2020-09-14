@@ -1,0 +1,13 @@
+{
+  "BackupDescription": {
+    "BackupDetails": {
+      "BackupArn": "arn:aws:dynamodb:us-east-1:123456789012:table/MyTestDynamoTable/backup/01489602797149-73d8d5bc",
+      "BackupName": "MyTestDynamoTableBackup",
+      "BackupSizeBytes": 9001,
+      "BackupStatus": "CREATING",
+      "BackupType": "USER",
+      "BackupCreationDateTime": "2020-09-10T11:43:12.754271-04:00",
+      "BackupExpiryDateTime": "2021-09-10T11:43:12.754271-04:00"
+    }
+  }
+}
